@@ -1,6 +1,10 @@
 package com.example.demo;
 
+import javafx.scene.control.Button;
+
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileDisplay {
     private final File file;
@@ -31,4 +35,25 @@ public class FileDisplay {
     public String toString() {
         return getIndentation() + file.getName();
     }
+
+//    private List<Button> createButtons() {
+//        List<Button> buttons = new ArrayList<>();
+//        // Create and add buttons to the list
+//        // For example:
+//        // buttons.add(new Button("Button 1"));
+//        // buttons.add(new Button("Button 2"));
+//        String [] names = new String [] {"You", "might", "want", "further",  "refine", "logic", "if", "you", "have", "padding", "or", "margins", "to", "consider"};
+////        ArrayList<String> names = new ArrayList<>("You", "might", "want", "further",  "refine", "logic", "if", "you", "have", "padding", "or", "margins", "to", "consider");
+//        System.out.println("NAMES SIZE = " + names.length);
+//        for(String s : names){
+////        for(int i = 0; i < 10; i++){
+//            Button btn = new Button(s);
+////            btn.setPrefSize();
+//            btn.setMinWidth(60);
+//            btn.autosize();
+//            buttons.add(btn);
+//        }
+//        // ...
+//        return buttons;
+//    }
 }
