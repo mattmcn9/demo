@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e861ee86-9ebb-42f5-8565-e9b66ba82bcd" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/demo/FileDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/demo/FileDisplay.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/demo/HelloApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/demo/HelloApplication.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -45,7 +43,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "button__scroll",
+    "git-widget-placeholder": "drag__and__drop__list__view",
     "ignore.virus.scanning.warn.message": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -71,6 +69,7 @@
       <workItem from="1694788002693" duration="15868000" />
       <workItem from="1695162195968" duration="5235000" />
       <workItem from="1695897188211" duration="663000" />
+      <workItem from="1696849908440" duration="8536000" />
     </task>
     <servers />
   </component>

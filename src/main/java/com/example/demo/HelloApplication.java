@@ -1,94 +1,152 @@
 package com.example.demo;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.ListView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HelloApplication extends Application {
 
-    private static final DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
-    private ListView<String> listView;
-
+    private List<Color> gradientColors = new ArrayList<>();
+    private Rectangle rec;
+    private Rectangle gradientDisplay;
+    private Canvas gradientWheel;
+    private final double WHEEL_SIZE = 200;
     @Override
     public void start(Stage primaryStage) {
-        listView = new ListView<>();
-        ObservableList<String> items = FXCollections.observableArrayList("Item 1", "Item 2", "Item 3", "Item 4");
-        listView.setItems(items);
+        VBox root = new VBox(10);
+        root.setPadding(new Insets(10));
 
-        listView.setCellFactory(param -> {
-            final javafx.scene.control.ListCell<String> cell = new javafx.scene.control.ListCell<String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
+        gradientDisplay = new Rectangle(500, 50);
+        updateGradientDisplay();
+        Rectangle colorPreview = new Rectangle(50, 50);
+        gradientWheel = new Canvas(WHEEL_SIZE, WHEEL_SIZE);
+        createGradientWheel(gradientWheel);
 
-                    if (item == null || empty) {
-                        setText(null);
-                    } else {
-                        setText(item);
-                    }
-                }
-            };
+        gradientWheel.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+            // 1. Pick the color
+            Color selectedColor = pickColorFromWheel( event.getX(), event.getY());
 
-            cell.setOnDragDetected(event -> {
-                if (!cell.isEmpty()) {
-                    Integer index = cell.getIndex();
-                    Dragboard db = cell.startDragAndDrop(TransferMode.MOVE);
-//                    db.setDragView(cell.snapshot(null, null));
-                    ClipboardContent cc = new ClipboardContent();
-                    cc.put(SERIALIZED_MIME_TYPE, index);
-                    db.setContent(cc);
+            // 2. Update the color preview
+            colorPreview.setFill(selectedColor);
 
-                    event.consume();
-                }
-            });
-
-            cell.setOnDragOver(event -> {
-                Dragboard db = event.getDragboard();
-                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-                    if (cell.getIndex() != ((Integer) db.getContent(SERIALIZED_MIME_TYPE)).intValue()) {
-                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                        event.consume();
-                    }
-                }
-            });
-
-            cell.setOnDragDropped(event -> {
-                Dragboard db = event.getDragboard();
-                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-                    int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
-                    String draggedItem = listView.getItems().remove(draggedIndex);
-
-                    int dropIndex = cell.isEmpty() ? listView.getItems().size() : cell.getIndex();
-
-                    listView.getItems().add(dropIndex, draggedItem);
-
-                    event.setDropCompleted(true);
-                    listView.getSelectionModel().select(dropIndex);
-                    event.consume();
-                }
-            });
-
-            return cell;
+            // 3. Draw the marker
+            drawMarker(event.getX(), event.getY());
         });
 
-        VBox root = new VBox(listView);
-        Scene scene = new Scene(root, 250, 400);
+
+        gradientWheel.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
+            if (event.getX() >= 0 && event.getX() <= WHEEL_SIZE && event.getY() >= 0 && event.getY() <= WHEEL_SIZE) {
+                // 1. Pick the color
+                Color selectedColor = pickColorFromWheel( event.getX(), event.getY());
+
+                // 2. Update the color preview
+                colorPreview.setFill(selectedColor);
+
+                // 3. Draw the marker
+                drawMarker(event.getX(), event.getY());
+            }
+        });
+
+
+
+
+//        gradientWheel.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+//            colorPreview.setFill(pickColorFromWheel(gradientWheel, event.getX(), event.getY()));
+//        });
+
+        Button addButton = new Button("Add to Gradient");
+        addButton.setOnAction(e -> {
+            gradientColors.add((Color) colorPreview.getFill());
+            updateGradientDisplay();
+        });
+
+        HBox controls = new HBox(10, gradientWheel, colorPreview, addButton);
+
+        root.getChildren().addAll(gradientDisplay, controls);
+
+        Scene scene = new Scene(root);
+        primaryStage.setTitle("Gradient Builder");
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Drag & Drop List");
         primaryStage.show();
+    }
+
+    private void drawMarker(double x, double y) {
+        double markerRadius = 5;
+        GraphicsContext gc = gradientWheel.getGraphicsContext2D();
+
+        // Redraw the gradient for the whole canvas to clear the old marker
+        createGradientWheel(gradientWheel);
+
+        // Draw the marker at the new position
+        gc.setFill(Color.BLACK);
+        gc.fillOval(x - markerRadius, y - markerRadius, markerRadius * 2, markerRadius * 2);
+    }
+
+
+    private void createGradientWheel(Canvas canvas) {
+        double size = canvas.getWidth();
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        double centerX = size / 2;
+        double centerY = size / 2;
+
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                double dx = x - centerX;
+                double dy = y - centerY;
+
+                double distance = Math.sqrt(dx * dx + dy * dy);
+                double angle = Math.atan2(dy, dx) / (2 * Math.PI) + 0.5;
+
+                if (distance <= size / 2) {
+                    gc.getPixelWriter().setColor(x, y, Color.hsb(angle * 360, 1, 1));
+                }
+            }
+        }
+    }
+
+    private Color pickColorFromWheel( double x, double y) {
+        WritableImage image = gradientWheel.snapshot(null, null);
+        PixelReader pixelReader = image.getPixelReader();
+        return pixelReader.getColor((int) x, (int) y);
+    }
+
+    private void updateGradientDisplay() {
+        Stop[] stops = new Stop[gradientColors.size()];
+        for (int i = 0; i < gradientColors.size(); i++) {
+            stops[i] = new Stop(i / (double) (gradientColors.size() - 1), gradientColors.get(i));
+        }
+
+        if (gradientColors.size() == 1) {
+            gradientDisplay.setFill(gradientColors.get(0));
+        } else if (gradientColors.size() > 1) {
+            gradientDisplay.setFill(new LinearGradient(0, 0, 1, 0, true, null, stops));
+        } else {
+            gradientDisplay.setFill(Color.TRANSPARENT);
+        }
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
+
+
 
 
