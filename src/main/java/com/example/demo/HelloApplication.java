@@ -148,5 +148,46 @@ public class HelloApplication extends Application {
 }
 
 
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
+
+public class GradientConverter {
+    
+    // Example structure of GlimpsesGradient. 
+    // Modify according to the actual structure.
+    static class GlimpsesGradient {
+        float startX, startY, endX, endY;
+        String[] colors; 
+        float[] fractions;
+        
+        GlimpsesGradient(float startX, float startY, float endX, float endY, String[] colors, float[] fractions) {
+            this.startX = startX;
+            this.startY = startY;
+            this.endX = endX;
+            this.endY = endY;
+            this.colors = colors;
+            this.fractions = fractions;
+        }
+    }
+    
+    public static LinearGradient convertGlimpsesToJavaFX(GlimpsesGradient glimpsesGradient) {
+        Stop[] stops = new Stop[glimpsesGradient.colors.length];
+        
+        for (int i = 0; i < glimpsesGradient.colors.length; i++) {
+            stops[i] = new Stop(glimpsesGradient.fractions[i], javafx.scene.paint.Color.web(glimpsesGradient.colors[i]));
+        }
+        
+        return new LinearGradient(glimpsesGradient.startX, glimpsesGradient.startY, glimpsesGradient.endX, glimpsesGradient.endY, false, javafx.scene.paint.CycleMethod.NO_CYCLE, stops);
+    }
+    
+    public static void main(String[] args) {
+        GlimpsesGradient gradient = new GlimpsesGradient(0f, 0f, 1f, 0f, new String[]{"#ff0000", "#0000ff"}, new float[]{0f, 1f});
+        LinearGradient fxGradient = convertGlimpsesToJavaFX(gradient);
+        
+        System.out.println(fxGradient);
+    }
+}
+
+
 
 
